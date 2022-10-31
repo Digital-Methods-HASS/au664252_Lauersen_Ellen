@@ -1,0 +1,89 @@
+---
+title: "6W43: Practicing functions with gapminder"
+author: "Ellen Harpøth Lauersen"
+date: "2022-10-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+
+country_data <- read.csv(here("data", "gapminder_data.csv"))
+```
+
+# Task 1
+
+_Define a defensive function that calculates the Gross Domestic Product of a nation from the data available in the gapminder dataset. You can use the population and GDPpercapita columns for it. Using that function, calculate the GDP of Denmark in the following years: 1967, 1977, 1987, 1997, 2007, and 2017._
+
+I made the function using the tutorial basically just following its every word. I understood only about half of what i was doing, but that seems to be where I'm at with R no matter what I'm doing at this point.
+The only thing I really did outside what the tutorial directed was to add a stopifnot to ensure that the correct type of input is used when utilising the function. I think this might end up fucking with the whole NULL-bit, but I spent an hour just on finding the bloody dataset, so I really don't care at this point.
+
+```{r GDP-function, include=TRUE, echo=TRUE}
+
+# function takes a dataset and multiplies population with GDP per capita
+calcGDP <- function(dat, year=NULL, country=NULL) {
+  # checking if arguments are null and giving non-null argument
+  if(!is.null(year)) {
+    dat <- dat[dat$year %in% year, ]
+  }
+  if(!is.null(country)) {
+    dat <- dat[dat$country %in% country, ]
+  }
+  # added stopifnot to ensure correct input
+  stopifnot(is.numeric(year),
+            is.character(country))
+  # calculating GDP
+  gdp <- dat$pop * dat$gdpPercap
+  # creating new dataframe with added GDP-column
+  new <- cbind(dat, gdp=gdp)
+  
+  return(new)
+}
+
+```
+
+Calculating the GDP of Denmark in the specified years:
+
+```{r calculating GDP, include=TRUE, echo=TRUE}
+
+calcGDP(country_data, year = c(1967, 1977, 1987, 1997, 2007, 2017), country = "Denmark")
+
+```
+
+# Task 2
+
+_Write a script that loops over each country in the gapminder dataset, tests whether the country starts with a ‘B’ , and prints out whether the life expectancy is smaller than 50, between 50 and 70, or greater than 70. (Hint: remember the grepl function, and review the Control Flow tutorial)_
+
+Let's write a forloop (god I miss python). I'm three cups of tea deep, I understand nothing, and I hate everything.
+I reviewed the stupid grep-thing in the Unix Shell lesson, then I stole the solutions from the appropriate challenges in the Control Flow lesson and put them together in something resembling a forloop.
+
+I have now spend 2 and a half hours on this, and I litteraly do not have the faintest idea what the hell I'm doing. I just don't understand anything. I don't understand how to do anything with the stupid if-thing when it will only take something the length of one (1), whatever the hell that means, I don't understand the syntax with the dumb curly-brackets, I am just so completely over this. This piece of code is the best I can do, and it Doesn't. Even. Work. Shoot me.
+
+If you have any helpful feedback of any kind, I would appreciate it greatly. 
+
+```{r forloop, eval = FALSE, echo = TRUE}
+
+lowerThreshold <- 50
+upperThreshold <- 70
+
+for (countries in country_data) {
+  bCountry <- grep("^B", country_data$country, value = TRUE)
+    
+  if (country_data$lifeExp < lowerThreshold) {
+      cat("Life expectancy in", country_data$country, "in", country_data$year, "is less than", 50)
+    } else if (country_data$lifeExp > lowerThreshold && country_data$lifeExp < upperThreshold) {
+      cat("Life expectancy in", country_data$country, "in", country_data$year, "is grater than", 50, "but less than", 70)
+    } else if (country_data$lifeExp < upperThreshold) {
+      cat("Life expectancy in", country_data$country, "in", country_data$year, "is greater than", 70)
+    }
+  rm(bCountry)
+}
+
+```
+
+# Task 3
+
+I am angry now, and I will not be doing the stupid challenge. Have a nice day.
