@@ -1,0 +1,98 @@
+---
+title: "7W44_web-scraping"
+author: "Ellen Harpøth Lauersen"
+date: "2022-11-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, include=FALSE}
+library(rvest)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(janitor)
+```
+
+
+You can choose between three tasks and I have chosen task 2:
+
+_2) use the rvest library to scrape data of your interest (football statistics in Wikipedia?, gender representatives in different governments? global population by country in https://www.worldometers.info/world-population/population-by-country/ )_
+
+I have chosen to use statistics on U.S. Navy aircraft found on wikipedia: https://en.wikipedia.org/wiki/List_of_currently_active_United_States_naval_aircraft
+
+I started out with an attempt at a function, but it wasn't working. The problem turned out be that the website had not one but five tables. I tried specifying which exact table I wanted to harvest, but I was unsuccessful (I carried all this out in a different non-markdown file).
+
+
+```{r scrape-function, eval=FALSE, echo=TRUE}
+
+fleet_scrape <- function(website){
+  
+  # scraping website
+  url <- read_html(website)
+  
+  # creating table named as specified with function-input
+  fleet_table <- url %>%
+    html_nodes("wikitable") %>%
+    html_table()
+  fleet_table <- do.call(cbind,unlist(fleet_table, recursive = FALSE))
+}
+
+```
+
+
+Trying to call it up like this, I realised it hadn't worked.
+
+
+```{r, eval=FALSE, echo=TRUE}
+
+USnavy_airfleet <- fleet_scrape("https://en.wikipedia.org/wiki/List_of_currently_active_United_States_naval_aircraft")
+
+USnavy_airfleet %>%
+  head()
+
+```
+
+
+Instead I decided to drop the function and do every step of the scraping process seperately, so I could find out exactly where the probem was arising. It turned out that if I harvested all five tables at once but then just "extracted" the particular table I wanted into its own object, then I could get it to work.
+As seen here:
+
+```{r fleet-code}
+
+# making a url-object
+url <- "https://en.wikipedia.org/wiki/List_of_currently_active_United_States_naval_aircraft"
+
+# scraping the website
+url_html <- read_html(url)
+
+# scraping the tables
+navy_table <- url_html %>%
+  html_nodes("table") %>%
+  html_table()
+
+# inspecting the tables
+head(navy_table)
+
+# identifying the type of my "table" (which is a tibble)
+str(navy_table)
+
+# extracting the first table (which is the table of aircraft (and helicopters))
+navy_aircraft <- navy_table[[1]]
+
+```
+
+Just inspecting the first part of my table, I can ssee that this worked.
+
+```{r fleet_table, echo=TRUE, include=TRUE}
+
+head(navy_aircraft)
+
+```
+
+
+This could perhaps be made into a function, but I don't think it would have the desired reusability as the table you need to extract might be different each time you use it on a different website. For this reason I won't bother making a function out of it.
+
+Upon further inspection though the table has some weird rows that identify "sub-tables" within the table (combat aircraft, electronic warfare, maritime patrol, transport, helicopter). I would attempt to fix this except it's not a required part of the task, I don't really know how to do it, and I don't have the time to figure it out. But this would be somethin necessary to do for a neater dataframe.
